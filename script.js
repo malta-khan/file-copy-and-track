@@ -4,6 +4,8 @@ const path = require("path");
 
 const mainFolder = path.join("D:", "Media", "Cartoons");
 const exportFolder = path.join("D:", "Media", "Cartoons", "Exported");
+const suffix = " -[exported]";
+
 // const exportFolder = path.join("F:","Exported");
 
 function scanFiles(directoryName) {
@@ -19,12 +21,14 @@ function scanFiles(directoryName) {
     //search each subFolder for files, make an array for each subfolder
     //first object inside that array is subFolder's name,
     // second is number of files in that folder after applying filters,
-    // and third is actual names of files inside that subfolder
+    // and third is actual names of files inside that subfolder after applying filters
     let folderDetails = [folder.name, , []];
 
     let files = fs
       .readdirSync(`${mainFolder}/${folder.name}`, { withFileTypes: true })
-      .filter((file) => file.isFile());
+      .filter((file) => {
+        return isVideoFile(file.name) && !file.name.includes(suffix)
+      });
     files.forEach((file) => {
       folderDetails[2].push(file.name);
     });
@@ -49,11 +53,13 @@ function pickFiles(fileList) {
     let pickedFiles = subFolder[2].slice(0, number);
     pickedFiles.forEach((fileName) => {
       filePaths.push(path.join(mainFolder, subFolder[0], fileName));
-      // console.log(fileName);
+      console.log(fileName);
     });
 
     console.log(`${pickedFiles.length} files selected from ${subFolder[0]}`);
-    console.log(`---------------------------------------------------------------`);
+    console.log(
+      `---------------------------------------------------------------`
+    );
   });
   return filePaths;
 }
@@ -68,9 +74,51 @@ function copyFiles(arrayOfPaths) {
     });
   });
 }
-//function copyFile
-//takes in filepath and copies it to destination
-//copies all those files to a specefied folde
+
+function renamer(originalPath) {
+  let dir = path.dirname(originalPath);
+  let ext = path.extname(originalPath);
+  let name = path.basename(originalPath, ext);
+  let newFileName = `${name}${suffix}${ext}`;
+  let newPath = path.join(dir, newFileName);
+
+  console.log(originalPath);
+  console.log(newPath);
+}
+
+function isVideoFile(filePath) {
+  let videoExtensions = [
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".mkv",
+    ".wmv",
+    ".flv",
+    ".webm",
+    ".mpg",
+    ".mpeg",
+    ".3gp",
+    ".rm",
+    ".ts",
+    ".mts",
+    ".m4v",
+    ".ogv",
+    ".vob",
+    ".asf",
+    ".nsv",
+    ".iso",
+    ".xvid",
+    ".h264",
+    ".hevc",
+    ".divx",
+  ];
+
+  // Get the file extension
+  const ext = path.extname(filePath).toLowerCase();
+
+  // Check if the extension is in the list of video extensions
+  return videoExtensions.includes(ext);
+}
 
 //function renamerFiles
 //takes in a file path and renames it with a prefix so it wont show up in next scanFiles run
@@ -78,5 +126,7 @@ function copyFiles(arrayOfPaths) {
 
 let scanResults = scanFiles(mainFolder);
 let filePaths = pickFiles(scanResults);
-console.log(filePaths)
+console.log(filePaths);
 copyFiles(filePaths);
+
+// renamer('D:\\Media\\Cartoons\\Bluey S01\\Bluey S01E03 720p x264-GalaxyTV.mkv', ".mkv")
