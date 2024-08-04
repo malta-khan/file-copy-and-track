@@ -1,13 +1,17 @@
 const fs = require("node:fs");
 const readlineSync = require("readline-sync");
-const mainFolder = "./test/target";
+const path = require("path");
+
+const mainFolder = path.join("D:", "Media", "Cartoons");
+const exportFolder = path.join("D:", "Media", "Cartoons", "Exported");
+// const exportFolder = path.join("F:","Exported");
 
 function scanFiles(directoryName) {
   //find all sub folders
   let folders = fs
     .readdirSync(directoryName, { withFileTypes: true })
-    .filter((folder) => folder.isDirectory());
-
+    .filter((folder) => folder.isDirectory())
+    .filter((folder) => folder.name != "LONG" && folder.name != "Exported");
   //make an array that will store details of each sub folder
   let fileList = [];
 
@@ -20,7 +24,7 @@ function scanFiles(directoryName) {
 
     let files = fs
       .readdirSync(`${mainFolder}/${folder.name}`, { withFileTypes: true })
-      .filter((folder) => folder.isFile());
+      .filter((file) => file.isFile());
     files.forEach((file) => {
       folderDetails[2].push(file.name);
     });
@@ -38,21 +42,32 @@ function pickFiles(fileList) {
   fileList.forEach((subFolder) => {
     //asks user how many files they want, for each subFolder
     let number = readlineSync.question(
-      `How many files from ${subFolder[0]}? (${subFolder[1]} availabe)\n`
+      `\nType in number of files to copy from "${subFolder[0]}" (${subFolder[1]} total) `
     );
 
     //pick the files and add their full paths to the filePaths array
     let pickedFiles = subFolder[2].slice(0, number);
     pickedFiles.forEach((fileName) => {
-      filePaths.push(`${mainFolder}/${subFolder[0]}/${fileName}`)
-      console.log(fileName);
+      filePaths.push(path.join(mainFolder, subFolder[0], fileName));
+      // console.log(fileName);
     });
 
-    console.log(`Selected ${pickedFiles.length} files from ${subFolder[0]} \n`);
+    console.log(`${pickedFiles.length} files selected from ${subFolder[0]}`);
+    console.log(`---------------------------------------------------------------`);
   });
   return filePaths;
 }
 
+function copyFiles(arrayOfPaths) {
+  arrayOfPaths.forEach((p) => {
+    fs.copyFile(p, path.join(exportFolder, path.basename(p)), (err) => {
+      if (err) {
+        return console.log(err);
+      }
+      console.log(`copied ${p}`);
+    });
+  });
+}
 //function copyFile
 //takes in filepath and copies it to destination
 //copies all those files to a specefied folde
@@ -62,4 +77,6 @@ function pickFiles(fileList) {
 //adds a prefix to their filenames so that they get filtered in next scanFiles run
 
 let scanResults = scanFiles(mainFolder);
-console.log(pickFiles(scanResults))
+let filePaths = pickFiles(scanResults);
+console.log(filePaths)
+copyFiles(filePaths);
