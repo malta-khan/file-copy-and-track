@@ -113,11 +113,27 @@ function pickFiles(fileList) {
         let name = path.basename(originalPath, ext);
         let newFileName = `${name}${suffix}${ext}`;
         let newPath = path.join(dir, newFileName);
-        
-        console.log(originalPath);
-        console.log(newPath);
+                fs.rename(originalPath, newPath, (err) => {
+          if (err) {
+              console.error(`Error renaming ${filePath}:`, err);
+          }
+      });
     })
+    console.log(`suffix ${suffix} added to ${filePaths.length} files. Can be removed by editing the script and un-commenting removeSuffix() in main`)
   }
   
+  function removeSuffix () {
+    let fileNames = getSubFolders(mainFolder)
+    .map(folder => getFiles(folder))
+    .map(folder=> {
+      folder.files = folder.allFiles
+      .filter((file => file.name.includes(suffix)))
+      .map(file => file.name)
   
-main()
+      return folder
+    })
+    console.log(fileNames);
+  }
+  
+// main()
+removeSuffix()
