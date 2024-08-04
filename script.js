@@ -6,7 +6,6 @@ const mainFolder = path.join("D:", "Media", "Cartoons");
 const exportFolder = path.join("D:", "Media", "Cartoons", "Exported");
 const suffix = " -[exported]";
 
-// const exportFolder = path.join("F:","Exported");
 
 function scanFiles(directoryName) {
   //find all sub folders
@@ -116,10 +115,6 @@ function isVideoFile(filePath) {
   // Check if the extension is in the list of video extensions
   return videoExtensions.includes(ext);
 }
-
-//function renamerFiles
-//takes in a file path and renames it with a prefix so it wont show up in next scanFiles run
-//adds a prefix to their filenames so that they get filtered in next scanFiles run
 
 let scanResults = scanFiles(mainFolder);
 let filePaths = pickFiles(scanResults);
