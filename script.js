@@ -22,17 +22,14 @@ function scanFiles(directoryName) {
     //first object inside that array is subFolder's name,
     // second is number of files in that folder after applying filters,
     // and third is actual names of files inside that subfolder after applying filters
-    let folderDetails = [folder.name, , []];
+    let folderDetails = {name: folder.name}
 
-    let files = fs
-      .readdirSync(`${mainFolder}/${folder.name}`, { withFileTypes: true })
-      .filter((file) => {
+    folderDetails.allFiles = fs
+      .readdirSync(path.join(mainFolder, folder.name), { withFileTypes: true })
+
+    folderDetails.files = folderDetails.allFiles.filter((file) => {
         return isVideoFile(file.name) && !file.name.includes(suffix)
-      });
-    files.forEach((file) => {
-      folderDetails[2].push(file.name);
-    });
-    folderDetails[1] = folderDetails[2].length;
+      }).map(file=> file.name);
     fileList.push(folderDetails);
   });
 
@@ -46,17 +43,17 @@ function pickFiles(fileList) {
   fileList.forEach((subFolder) => {
     //asks user how many files they want, for each subFolder
     let number = readlineSync.question(
-      `\nType in number of files to copy from "${subFolder[0]}" (${subFolder[1]} total) `
+      `\nType in number of files to copy from "${subFolder.name}" (${subFolder.files.length}/${subFolder.allFiles.length} available) `
     );
 
     //pick the files and add their full paths to the filePaths array
-    let pickedFiles = subFolder[2].slice(0, number);
+    let pickedFiles = subFolder.files.slice(0, number);
     pickedFiles.forEach((fileName) => {
-      filePaths.push(path.join(mainFolder, subFolder[0], fileName));
+      filePaths.push(path.join(mainFolder, subFolder.name, fileName));
       console.log(fileName);
     });
 
-    console.log(`${pickedFiles.length} files selected from ${subFolder[0]}`);
+    console.log(`${pickedFiles.length} files selected from ${subFolder.name}`);
     console.log(
       `---------------------------------------------------------------`
     );
