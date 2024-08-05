@@ -24,7 +24,7 @@ Scanning for subFolders...`;
   let subFoldersExpanded = subFolders.map((folder) => getFiles(folder));
   subFoldersExpanded.map((folder) => {
     console.log(
-      `${folder.name} | ${folder.files.length} available | ${folder.allFiles.length} total\n----------------------------------------------------`
+      `${folder.name}\n| ${folder.allFiles.length} total files | ${folder.allFiles.length - folder.files.length} exported | ${folder.files.length} available |\n----------------------------------------------------`
     );
   });
   let pickedFiles = pickFiles(subFoldersExpanded);
@@ -98,7 +98,7 @@ function pickFiles(fileList) {
   fileList.forEach((subFolder) => {
     //asks user how many files they want, for each subFolder
     let number = readlineSync.question(
-      `\nType in number of files to copy from "${subFolder.name}" (${subFolder.files.length}/${subFolder.allFiles.length} available) `
+      `\nType in number of files to copy from "${subFolder.name}" (${subFolder.files.length} max) `
     );
 
     //pick the files and add their full paths to the filePaths array
@@ -153,7 +153,7 @@ function removeSuffix() {
         .map((file) => file.name);
       return folder;
     })
-    .filter((folder) => folder.name === "Tom and Jerry")
+    // .filter((folder) => folder.name === "Tom and Jerry")
     .map((folder) => {
       folder.files.map((file) => {
         let dir = path.join(mainFolder, folder.name);
